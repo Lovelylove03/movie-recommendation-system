@@ -1,48 +1,76 @@
 import numpy as np
 import pandas as pd
+import seaborn as sns
+import streamlit as st
+from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 from sklearn.model_selection import train_test_split
-file_path = r"C:movies_step2 - movies_step2.csv"
- # Lire le fichier CSV
+
+# Streamlit title
+st.title('Movie Recommendation System')
+
+# File path
+file_path = 'movies_step2.csv'
+
+# Read the CSV file
 df_movies = pd.read_csv(file_path, sep=',')
- #Convertir la colonne 'runtimeMinutes' en int
-# 1. Remplacer les valeurs non numériques et les chaînes vides par NaN
+
+# Convert 'runtimeMinutes' column to int
 df_movies['runtimeMinutes'] = pd.to_numeric(df_movies['runtimeMinutes'], errors='coerce')
-
-# 2. Remplacer les valeurs NaN par 0 (ou toute autre valeur par défaut)
 df_movies['runtimeMinutes'] = df_movies['runtimeMinutes'].fillna(0).astype(int)
+
 # Train test split
-
-X = df_movies.drop(columns=['tconst','titleType', 'title', 'language'])
+X = df_movies.drop(columns=['tconst', 'titleType', 'title', 'language'])
 y = df_movies['title']
-# Your code here
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 
-X_train, X_test, y_train, y_test = train_test_split(X,y, random_state = 42, )
-print("The length of the initial dataset is :", len(X))
-print("The length of the train dataset is   :", len(X_train))
-print("The length of the test dataset is    :", len(X_test))
-model =  KNeighborsClassifier()
+# Display dataset information
+st.write("The length of the initial dataset is :", len(X))
+st.write("The length of the train dataset is   :", len(X_train))
+st.write("The length of the test dataset is    :", len(X_test))
+
+# Train KNeighborsClassifier
+model = KNeighborsClassifier()
 model.fit(X_train, y_train)
-print(model)
-print(model.score(X_train, y_train))
-print(model.score(X_test, y_test))
-for neighbors in range(2,6):
-  for weight in ["uniform" , "distance"]:
-    model =  KNeighborsClassifier(n_neighbors = neighbors , weights = weight).fit(X_train, y_train)
-    print("For ", neighbors, "neighbors and weight=", weight,
-          ": train score", model.score(X_train, y_train),
-          "and test score:", model.score(X_test, y_test))
-X = df_movies.drop(columns=['tconst','titleType', 'title', 'language'])
-y = df_movies['title']
+st.write("KNeighborsClassifier model:", model)
+st.write("Train score:", model.score(X_train, y_train))
+st.write("Test score:", model.score(X_test, y_test))
+
+# Evaluate different hyperparameters
+for neighbors in range(2, 6):
+    for weight in ["uniform", "distance"]:
+        model = KNeighborsClassifier(n_neighbors=neighbors, weights=weight).fit(X_train, y_train)
+        st.write(f"For {neighbors} neighbors and weight={weight}: train score {model.score(X_train, y_train)}, test score: {model.score(X_test, y_test)}")
+
+# Train NearestNeighbors model
 modelNN = NearestNeighbors(n_neighbors=3)
-modelNN.fit(X_train, y_train)
+modelNN.fit(X)
+
+# Movie recommendation
 list_movie = ['Kate et Léopold']
 for movie in list_movie:
-    # for a movie, pass only same columns as X that our model needs
     neighbors = modelNN.kneighbors(df_movies.loc[df_movies['title'] == movie, X.columns])
-    print(f"Recommandations for movie {movie} :")
-    # find row number (not row name) from the nearest neighbors into dataframe on which the model was fitted
-    closest_pok_ind = neighbors[1][0]
-    closest_pok = df_movies['title'].iloc[closest_pok_ind]
-    print("Closest Moviess : ", list(closest_pok))
-    print("Respectives distances : ", neighbors[0][0])
-    print()
+    closest_movies_indices = neighbors[1][0]
+    closest_movies = df_movies['title'].iloc[closest_movies_indices]
+    st.write(f"Recommendations for movie {movie}:")
+    st.write("Closest Movies:", list(closest_movies))
+    st.write("Respective distances:", neighbors[0][0])
+numpy
+pandas
+seaborn
+scikit-learn
+streamlit
+env/
+__pycache__/
+*.pyc
+*.pyo
+# Movie Recommendation System
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/your-repo-name.git
+   cd your-repo-name
+python -m venv env
+source env/bin/activate  # On Windows, use `env\Scripts\activate`
+pip install -r requirements.txt
