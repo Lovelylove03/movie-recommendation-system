@@ -54,23 +54,3 @@ for movie in list_movie:
     st.write(f"Recommendations for movie {movie}:")
     st.write("Closest Movies:", list(closest_movies))
     st.write("Respective distances:", neighbors[0][0])
-numpy
-pandas
-seaborn
-scikit-learn
-streamlit
-env/
-__pycache__/
-*.pyc
-*.pyo
-# Movie Recommendation System
-
-## Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/your-repo-name.git
-   cd your-repo-name
-python -m venv env
-source env/bin/activate  # On Windows, use `env\Scripts\activate`
-pip install -r requirements.txt
